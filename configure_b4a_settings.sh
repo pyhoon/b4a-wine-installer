@@ -66,14 +66,14 @@ fi
 log_info "Configuring b4xV5.ini..."
 
 # Apply your requested settings
-ini_set "$B4A_INI_FILE" "AdditionalLibrariesFolder" "C:\\Additional Libraries"
 ini_set "$B4A_INI_FILE" "FontName2" "Ubuntu Sans Mono"
 ini_set "$B4A_INI_FILE" "FontSize2" "15"
-ini_set "$B4A_INI_FILE" "JavaBin" "C:\\Java\\jdk-19.0.2\\bin"
 ini_set "$B4A_INI_FILE" "logs_FontName2" "Ubuntu Sans"
 ini_set "$B4A_INI_FILE" "logs_FontSize2" "15"
-ini_set "$B4A_INI_FILE" "NewProjectDefaultFolder" "Z:\\home\\$(whoami)\\B4A_Projects"
-ini_set "$B4A_INI_FILE" "PlatformFolder" "C:\\Program Files\\Anywhere Software\\B4A\\platforms\\android-36"
+ini_set "$B4A_INI_FILE" "JavaBin" "C:\/Java\/jdk-19.0.2\/bin"
+ini_set "$B4A_INI_FILE" "NewProjectDefaultFolder" "${HOME}/B4A_Projects"
+ini_set "$B4A_INI_FILE" "AdditionalLibrariesFolder" "C:\/Additional Libraries"
+ini_set "$B4A_INI_FILE" "PlatformFolder" "C:\/Program Files\/Anywhere Software\/B4A\/platforms\/android-36"
 
 log_success "B4A configuration applied!"
 
