@@ -46,7 +46,7 @@ This script automatically:
 - **Linux Mint 21.x** (Vanessa/Vera/Victoria/Virginia) or **22.x** (Wilma/Xia/Zara/Zena)
 - **64-bit architecture** (with 32-bit support enabled)
 - **Internet connection** for downloads
-- **~3 GB free disk space** (Wine prefix + JDK + B4A)
+- **~4 GB free disk space** (Wine prefix + JDK + B4A + Android SDK + B4A Resources)
 - **sudo privileges** for system package installation
 
 ## 🚀 Quick Start
@@ -156,7 +156,7 @@ mv ~/.wine_b4a ~/.wine_b4a.backup
 ## 📁 Folder Structure Created
 
 ```
-~/.wine_b4a/                    # Dedicated Wine prefix
+~/.wine_b4a/                   # Dedicated Wine prefix
 ├── drive_c/
 │   ├── Java/                  # JDK 19 extracted here
 │   ├── Program Files/
