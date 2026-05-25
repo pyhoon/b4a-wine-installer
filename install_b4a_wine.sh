@@ -30,6 +30,15 @@ readonly BLUE='\033[0;34m'
 readonly NC='\033[0m' # No Color
 
 #-------------------------------------------------------------------------------
+# ANDROID SDK CONFIGURATION
+#-------------------------------------------------------------------------------
+readonly SDK_CMDLINE_URL="https://dl.google.com/android/repository/commandlinetools-win-13114758_latest.zip"
+readonly SDK_RESOURCES_URL="https://github.com/AnywhereSoftware/B4A/releases/download/7_25/resources_7_25.zip"
+readonly SDK_WINE_PATH="C:\\Android"
+readonly SDK_LINUX_PATH="${WINE_PREFIX}/drive_c/Android"
+readonly B4A_INSTALL_DIR="${WINE_PREFIX}/drive_c/Program Files/Anywhere Software/B4A"
+
+#-------------------------------------------------------------------------------
 # HELPER FUNCTIONS
 #-------------------------------------------------------------------------------
 log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
@@ -258,22 +267,92 @@ fi
 rm -rf "$JDK_EXTRACT_DIR" "$JDK_ZIP"
 
 #-------------------------------------------------------------------------------
-# 12. Create optional folders: Additional Libraries & Projects
+# 12. Download and install Android SDK Command Line Tools
 #-------------------------------------------------------------------------------
-log_info "Creating optional folder structure..."
+log_info "Downloading Android SDK Command Line Tools..."
+SDK_ZIP="${WINE_PREFIX}/drive_c/temp/commandlinetools.zip"
+mkdir -p "$(dirname "$SDK_ZIP")"
+download_file "${SDK_CMDLINE_URL}" "$SDK_ZIP"
 
-# Create "Additional Libraries" folder in ~/.wine_b4a/drive_c with B4X subfolders
-ADDITIONAL_LIBS_DIR="${WINE_PREFIX}/drive_c/Additional Libraries"
-mkdir -p "${ADDITIONAL_LIBS_DIR}/B4A" "${ADDITIONAL_LIBS_DIR}/B4X"
-log_success "Created C:\\Additional Libraries\\{B4A,B4X}"
+log_info "Extracting Android SDK to ${SDK_WINE_PATH}..."
+# Create target directory directly in Wine prefix
+mkdir -p "${SDK_LINUX_PATH}/cmdline-tools"
 
-# Create "Projects" folder in user's home directory
-PROJECTS_DIR="${HOME}/B4A_Projects"
-mkdir -p "$PROJECTS_DIR"
-log_success "Created Projects folder: ${PROJECTS_DIR}"
+# Extract to temp location first
+SDK_TEMP="${WINE_PREFIX}/drive_c/temp/sdk_extract"
+mkdir -p "$SDK_TEMP"
+unzip -q "$SDK_ZIP" -d "$SDK_TEMP"
+
+# Android SDK expects: cmdline-tools/latest/
+# The zip extracts to cmdline-tools/ with bin/, lib/, etc.
+if [[ -d "${SDK_TEMP}/cmdline-tools" ]]; then
+    mv "${SDK_TEMP}/cmdline-tools" "${SDK_LINUX_PATH}/cmdline-tools/latest"
+    log_success "Android SDK Command Line Tools extracted to ${SDK_WINE_PATH}"
+else
+    log_warn "Unexpected SDK archive structure. Attempting fallback extraction..."
+    # Fallback: move whatever was extracted
+    find "${SDK_TEMP}" -mindepth 1 -maxdepth 1 -exec mv -t "${SDK_LINUX_PATH}/cmdline-tools/latest/" {} + 2>/dev/null || true
+fi
+
+# Cleanup temp files
+rm -rf "${SDK_TEMP}" "${SDK_ZIP}"
 
 #-------------------------------------------------------------------------------
-# 13. Create desktop shortcut/launcher for B4A
+# 13. Accept Android SDK Licenses (silent)
+#-------------------------------------------------------------------------------
+log_info "Accepting Android SDK licenses..."
+export WINEPREFIX="${WINE_PREFIX}"
+export JAVA_HOME="${WINE_PREFIX}/drive_c/Java"  # Use the JDK we installed earlier
+
+# Create licenses directory (required for sdkmanager)
+mkdir -p "${SDK_LINUX_PATH}/licenses"
+
+# Pre-accept common licenses by creating license files
+# This avoids interactive prompts from sdkmanager --licenses
+cat > "${SDK_LINUX_PATH}/licenses/android-sdk-license" <<'EOF'
+24333f8a63b6825ea9c5514f83c2829b004d1fee
+EOF
+
+cat > "${SDK_LINUX_PATH}/licenses/android-sdk-preview-license" <<'EOF'
+84831b9409646a918e30573bab4c9c91346d8abd
+EOF
+
+cat > "${SDK_LINUX_PATH}/licenses/google-gdk-license" <<'EOF'
+33b6a2b64607f11b759f320ef9dff4ae5c47d97a
+EOF
+
+log_success "Android SDK licenses pre-accepted"
+
+# Optional: Verify sdkmanager works (non-blocking)
+if command -v wine &>/dev/null; then
+    wine "${SDK_LINUX_PATH}/cmdline-tools/latest/bin/sdkmanager.bat" --list 2>/dev/null | head -5 >/dev/null && \
+        log_success "sdkmanager is functional" || \
+        log_warn "sdkmanager verification skipped (may need first-run initialization)"
+fi
+
+#-------------------------------------------------------------------------------
+# 14. Download and install B4A Required Resources
+#-------------------------------------------------------------------------------
+log_info "Downloading B4A Required Resources (7_25)..."
+RESOURCES_ZIP="${WINE_PREFIX}/drive_c/temp/resources_7_25.zip"
+download_file "${SDK_RESOURCES_URL}" "$RESOURCES_ZIP"
+
+log_info "Extracting B4A Resources to B4A installation folder..."
+# Extract directly to B4A install directory (where Additional Libraries, etc. are expected)
+if [[ -d "$B4A_INSTALL_DIR" ]]; then
+    unzip -q -o "$RESOURCES_ZIP" -d "$B4A_INSTALL_DIR" 2>/dev/null && \
+        log_success "B4A Resources extracted to ${B4A_INSTALL_DIR}" || \
+        log_warn "Failed to extract B4A Resources. You may need to extract manually."
+else
+    log_warn "B4A installation directory not found: ${B4A_INSTALL_DIR}"
+    log_info "You can extract ${RESOURCES_ZIP} manually to your B4A folder later."
+fi
+
+# Cleanup
+rm -f "$RESOURCES_ZIP"
+
+#-------------------------------------------------------------------------------
+# 15. Create desktop shortcut/launcher for B4A
 //-------------------------------------------------------------------------------
 log_info "Creating desktop launcher for B4A..."
 
@@ -302,7 +381,7 @@ if [[ -f "$B4A_EXE" ]]; then
 Version=1.0
 Name=B4A (Wine)
 Comment=B4A IDE - Run via Wine
-Exec=env WINEPREFIX="${WINE_PREFIX}" wine "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\B4A\\B4A.lnk"
+Exec=env WINEPREFIX="${WINE_PREFIX}" wine "${B4A_EXE//\//\\/}"
 Path=${WINE_PREFIX}/drive_c/Program Files/Anywhere Software/B4A
 Icon=${LOCAL_ICON}
 Terminal=false
@@ -326,14 +405,29 @@ else
 fi
 
 #-------------------------------------------------------------------------------
-# 14. Set permissions on Wine prefix and folders
+# 16. Create optional folders: Additional Libraries & Projects
+#-------------------------------------------------------------------------------
+log_info "Creating optional folder structure..."
+
+# Create "Additional Libraries" folder in ~/.wine_b4a/drive_c with B4X subfolders
+ADDITIONAL_LIBS_DIR="${WINE_PREFIX}/drive_c/Additional Libraries"
+mkdir -p "${ADDITIONAL_LIBS_DIR}/B4A" "${ADDITIONAL_LIBS_DIR}/B4X"
+log_success "Created C:\\Additional Libraries\\{B4A,B4X}"
+
+# Create "Projects" folder in user's home directory
+PROJECTS_DIR="${HOME}/B4A_Projects"
+mkdir -p "$PROJECTS_DIR"
+log_success "Created Projects folder: ${PROJECTS_DIR}"
+
+#-------------------------------------------------------------------------------
+# 17. Set permissions on Wine prefix and folders
 #-------------------------------------------------------------------------------
 log_info "Setting appropriate permissions..."
 chmod -R u+rwX "${WINE_PREFIX}" 2>/dev/null || true
 chmod 755 "$PROJECTS_DIR" 2>/dev/null || true
 
 #-------------------------------------------------------------------------------
-# 15. Final configuration tips & messages
+# 18. Final configuration tips & messages
 #-------------------------------------------------------------------------------
 echo -e "\n${GREEN}════════════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}  ✓ B4A Installation Complete!${NC}"
@@ -343,22 +437,28 @@ echo -e "${YELLOW}📋 Quick Start:${NC}"
 echo "  • Launch B4A from your application menu or desktop"
 echo "  • Or run manually: WINEPREFIX=\"${WINE_PREFIX}\" wine \"${B4A_EXE}\""
 echo ""
-echo -e "${YELLOW}⚙️  Important Notes:${NC}"
-echo "  • Remember to set java compiler path: ${JAVA_WINE_PATH}\\jdk-19.0.2\\bin\\javac.exe"
+echo -e "${YELLOW}⚙️  Important Configuration:${NC}"
+echo "  • Java Compiler Path: ${JAVA_WINE_PATH}\\jdk-19.0.2\\bin\\javac.exe"
+echo "  • Android SDK Path: ${SDK_WINE_PATH}"
+echo "  • In B4A: Tools → Configure Paths → Set:"
+echo "    - Android SDK: ${SDK_WINE_PATH}"
+echo "    - Java Home: ${JAVA_WINE_PATH}"
 echo "  • Additional Libraries: C:\\Additional Libraries\\{B4A,B4X}"
-echo "  • B4A projects default to: ${PROJECTS_DIR}"
+echo "  • Projects default to: ${PROJECTS_DIR}"
 echo ""
 echo -e "${YELLOW}🔧 Troubleshooting Tips:${NC}"
-echo "  • .NET errors: Ensure dotnet452 installed: winetricks list-installed"
-echo "  • If B4A crashes: Try running 'winetricks gdiplus' in the prefix"
-echo "  • Font issues: Try running 'winetricks corefonts fontsmooth=rgb'"
+echo "  • SDK not detected? Verify path in B4A: Tools → Configure Paths"
+echo "  • License errors? Run: wine sdkmanager.bat --licenses (in ${SDK_WINE_PATH}\\cmdline-tools\\latest\\bin)"
+echo "  • .NET errors: winetricks list-installed | grep dotnet"
+echo "  • Graphics issues: winetricks dxvk renderer=gdi"
 echo "  • Reset prefix: Backup then delete ${WINE_PREFIX} and re-run script"
 echo ""
 echo -e "${YELLOW}📚 Resources:${NC}"
-echo "  • B4A Documentation: https://www.b4x.com/android/documentation.html"
+echo "  • B4A Docs: https://www.b4x.com/android/documentation.html"
+echo "  • Android SDK: https://developer.android.com/studio#command-tools"
 echo "  • Wine AppDB (B4A): https://appdb.winehq.org/objectManager.php?sClass=application&iId=18092"
-echo "  • B4X Forum (Wine): https://www.b4x.com/android/forum/pages/results/?query=wine"
+echo "  • B4X Forum: https://www.b4x.com/android/forum/"
 echo ""
-echo -e "${GREEN}Happy coding with B4A on Linux Mint! 🚀${NC}\n"
+echo -e "${GREEN}Happy coding with B4A on Linux Mint! 🚀📱☕${NC}\n"
 
 exit 0
