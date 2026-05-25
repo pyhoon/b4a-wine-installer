@@ -83,9 +83,24 @@ After first launch, verify JDK path in B4A:
 1. Go to **Tools → Configure Paths**
 2. Ensure **javac.exe** field sets to: `C:\Java\jdk-19.0.2\bin\javac.exe`
 
-### B4A Configuration (b4xV5.ini)
+## ⚙️ Post-Installation Configuration
 
-The installer automatically configures `b4xV5.ini` with optimized settings:
+The `b4xV5.ini` configuration file is **created by B4A on its first run**, not during installation. To respect this workflow, we provide a separate configuration script.
+```bash
+wget https://raw.githubusercontent.com/pyhoon/b4a-wine-installer/main/configure_b4a_settings.sh
+chmod +x configure_b4a_settings.sh
+./configure_b4a_settings.sh
+```
+
+### How to Apply Preferenced Settings
+
+1. **Launch B4A once** (from menu or desktop)
+2. **Close B4A** (no need to create a project)
+3. **Run the configurator**:
+   ```bash
+   ./configure_b4a_settings.sh
+   ```
+The script automatically configures `b4xV5.ini` with optimized settings:
 
 | Setting | Value | Purpose |
 |---------|-------|---------|
