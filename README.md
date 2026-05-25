@@ -86,11 +86,6 @@ After first launch, verify JDK path in B4A:
 ## ⚙️ Post-Installation Configuration
 
 The `b4xV5.ini` configuration file is **created by B4A on its first run**, not during installation. To respect this workflow, we provide a separate configuration script.
-```bash
-wget https://raw.githubusercontent.com/pyhoon/b4a-wine-installer/main/configure_b4a_settings.sh
-chmod +x configure_b4a_settings.sh
-./configure_b4a_settings.sh
-```
 
 ### How to Apply Preferenced Settings
 
@@ -98,6 +93,8 @@ chmod +x configure_b4a_settings.sh
 2. **Close B4A** (no need to create a project)
 3. **Run the configurator**:
    ```bash
+   wget https://raw.githubusercontent.com/pyhoon/b4a-wine-installer/main/configure_b4a_settings.sh
+   chmod +x configure_b4a_settings.sh
    ./configure_b4a_settings.sh
    ```
 The script automatically configures `b4xV5.ini` with optimized settings:
@@ -267,4 +264,4 @@ Found an issue or have an improvement?
 MIT License - See [LICENSE](https://github.com/pyhoon/b4a-wine-installer/tree/main?tab=MIT-1-ov-file#) file for details.
 
 ---
-*Last updated: 25 May 2026 | Compatible with Linux Mint 21.x / 22.x*
+*Last updated: 26 May 2026 | Compatible with Linux Mint 21.x / 22.x*
