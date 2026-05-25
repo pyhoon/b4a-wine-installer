@@ -82,6 +82,28 @@ download_file() {
 }
 
 #-------------------------------------------------------------------------------
+# INI FILE HELPER: Set or update a key=value pair in an INI file
+#-------------------------------------------------------------------------------
+ini_set() {
+    local file="$1" key="$2" value="$3"
+    
+    # Create file if it doesn't exist
+    if [[ ! -f "$file" ]]; then
+        mkdir -p "$(dirname "$file")"
+        touch "$file"
+    fi
+    
+    # If key exists, update it; otherwise append it
+    if grep -q "^${key}=" "$file" 2>/dev/null; then
+        # Update existing key (using sed with proper escaping)
+        sed -i "s|^${key}=.*|${key}=${value}|" "$file"
+    else
+        # Append new key-value pair
+        echo "${key}=${value}" >> "$file"
+    fi
+}
+
+#-------------------------------------------------------------------------------
 # MAIN INSTALLATION STEPS
 #-------------------------------------------------------------------------------
 
@@ -337,28 +359,61 @@ log_info "Downloading B4A Required Resources (7_25)..."
 RESOURCES_ZIP="${WINE_PREFIX}/drive_c/temp/resources_7_25.zip"
 download_file "${SDK_RESOURCES_URL}" "$RESOURCES_ZIP"
 
-log_info "Extracting B4A Resources to B4A installation folder..."
-# Extract directly to B4A install directory (where Additional Libraries, etc. are expected)
-if [[ -d "$B4A_INSTALL_DIR" ]]; then
-    unzip -q -o "$RESOURCES_ZIP" -d "$B4A_INSTALL_DIR" 2>/dev/null && \
-        log_success "B4A Resources extracted to ${B4A_INSTALL_DIR}" || \
+log_info "Extracting B4A Resources to Android SDK folder..."
+# Extract directly to Android SDK directory (where Additional Libraries, etc. are expected)
+if [[ -d "$SDK_LINUX_PATH" ]]; then
+    unzip -q -o "$RESOURCES_ZIP" -d "$SDK_LINUX_PATH" 2>/dev/null && \
+        log_success "B4A Resources extracted to ${SDK_LINUX_PATH}" || \
         log_warn "Failed to extract B4A Resources. You may need to extract manually."
 else
-    log_warn "B4A installation directory not found: ${B4A_INSTALL_DIR}"
-    log_info "You can extract ${RESOURCES_ZIP} manually to your B4A folder later."
+    log_warn "Android SDK directory not found: ${SDK_LINUX_PATH}"
+    log_info "You can extract ${RESOURCES_ZIP} manually to your Android SDK folder later."
 fi
 
 # Cleanup
 rm -f "$RESOURCES_ZIP"
 
 #-------------------------------------------------------------------------------
-# 15. Create desktop shortcut/launcher for B4A
-//-------------------------------------------------------------------------------
+# 15. Configure B4A settings in b4xV5.ini
+#-------------------------------------------------------------------------------
+log_info "Configuring B4A settings in b4xV5.ini..."
+
+# Define paths for the INI file
+B4A_CONFIG_DIR="${WINE_PREFIX}/drive_c/users/$(whoami)/AppData/Roaming/Anywhere Software/Basic4android"
+B4A_INI_FILE="${B4A_CONFIG_DIR}/b4xV5.ini"
+
+# Ensure directory exists
+mkdir -p "$B4A_CONFIG_DIR"
+
+# Configure each setting using our helper function
+# Note: Use forward slashes in paths for Wine compatibility, or escape backslashes
+ini_set "$B4A_INI_FILE" "AdditionalLibrariesFolder" "C:\\Additional Libraries"
+ini_set "$B4A_INI_FILE" "FontName2" "Ubuntu Sans Mono"
+ini_set "$B4A_INI_FILE" "FontSize2" "15"
+ini_set "$B4A_INI_FILE" "JavaBin" "C:\\Java\\jdk-19.0.2\\bin"
+ini_set "$B4A_INI_FILE" "logs_FontName2" "Ubuntu Sans"
+ini_set "$B4A_INI_FILE" "logs_FontSize2" "15"
+ini_set "$B4A_INI_FILE" "NewProjectDefaultFolder" "Z:\\home\\$(whoami)\\B4A_Projects"
+ini_set "$B4A_INI_FILE" "PlatformFolder" "C:\\Program Files\\Anywhere Software\\B4A\\platforms\\android-36"
+
+log_success "B4A configuration saved to ${B4A_INI_FILE}"
+
+# Optional: Display the configured settings for verification
+if [[ -f "$B4A_INI_FILE" ]]; then
+    log_info "Applied settings:"
+    grep -E "^(AdditionalLibrariesFolder|FontName2|FontSize2|JavaBin|logs_FontName2|logs_FontSize2|NewProjectDefaultFolder|PlatformFolder)=" "$B4A_INI_FILE" 2>/dev/null | while read -r line; do
+        echo -e "  ${CYAN}•${NC} $line"
+    done
+fi
+
+#-------------------------------------------------------------------------------
+# 16. Create desktop shortcut/launcher for B4A
+#-------------------------------------------------------------------------------
 log_info "Creating desktop launcher for B4A..."
 
 # Find B4A executable (common install locations)
-B4A_EXE="${WINE_PREFIX}/drive_c/Program Files (x86)/Anywhere Software/B4A/B4A.exe"
-[[ ! -f "$B4A_EXE" ]] && B4A_EXE="${WINE_PREFIX}/drive_c/Program Files/Anywhere Software/B4A/B4A.exe"
+B4A_EXE="${WINE_PREFIX}/drive_c/Program Files/Anywhere Software/B4A/B4A.exe"
+[[ ! -f "$B4A_EXE" ]] && B4A_EXE="${WINE_PREFIX}/drive_c/Program Files (x86)/Anywhere Software/B4A/B4A.exe"
 [[ ! -f "$B4A_EXE" ]] && B4A_EXE="${WINE_PREFIX}/drive_c/users/$(whoami)/AppData/Local/Programs/B4A/B4A.exe"
 
 if [[ -f "$B4A_EXE" ]]; then
@@ -379,9 +434,9 @@ if [[ -f "$B4A_EXE" ]]; then
     cat > "$DESKTOP_ENTRY" <<EOF
 [Desktop Entry]
 Version=1.0
-Name=B4A (Wine)
+Name=B4A
 Comment=B4A IDE - Run via Wine
-Exec=env WINEPREFIX="${WINE_PREFIX}" wine "${B4A_EXE//\//\\/}"
+Exec=env WINEPREFIX="${WINE_PREFIX}" wine "${B4A_EXE}"
 Path=${WINE_PREFIX}/drive_c/Program Files/Anywhere Software/B4A
 Icon=${LOCAL_ICON}
 Terminal=false
@@ -405,7 +460,7 @@ else
 fi
 
 #-------------------------------------------------------------------------------
-# 16. Create optional folders: Additional Libraries & Projects
+# 17. Create optional folders: Additional Libraries & Projects
 #-------------------------------------------------------------------------------
 log_info "Creating optional folder structure..."
 
@@ -420,14 +475,14 @@ mkdir -p "$PROJECTS_DIR"
 log_success "Created Projects folder: ${PROJECTS_DIR}"
 
 #-------------------------------------------------------------------------------
-# 17. Set permissions on Wine prefix and folders
+# 18. Set permissions on Wine prefix and folders
 #-------------------------------------------------------------------------------
 log_info "Setting appropriate permissions..."
 chmod -R u+rwX "${WINE_PREFIX}" 2>/dev/null || true
 chmod 755 "$PROJECTS_DIR" 2>/dev/null || true
 
 #-------------------------------------------------------------------------------
-# 18. Final configuration tips & messages
+# 19. Final configuration tips & messages
 #-------------------------------------------------------------------------------
 echo -e "\n${GREEN}════════════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}  ✓ B4A Installation Complete!${NC}"
