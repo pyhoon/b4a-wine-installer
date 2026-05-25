@@ -17,6 +17,7 @@
 - [🚀 Quick Start](#-quick-start)
 - [⚙️ Configuration](#️-configuration-details)
 - [🔧 Troubleshooting](#-troubleshooting)
+- [🗑️ Uninstall B4A Wine](#-uninstall-b4a-wine)
 - [📚 Resources](#-references--resources)
 
 <!-- 📝 Main content continues... -->
