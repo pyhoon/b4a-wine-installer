@@ -82,6 +82,26 @@ After first launch, verify JDK path in B4A:
 1. Go to **Tools → Configure Paths**
 2. Ensure **javac.exe** field sets to: `C:\Java\jdk-19.0.2\bin\javac.exe`
 
+### B4A Configuration (b4xV5.ini)
+
+The installer automatically configures `b4xV5.ini` with optimized settings:
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `AdditionalLibrariesFolder` | `C:\Additional Libraries` | Location for B4A library files |
+| `FontName2` / `FontSize2` | `Ubuntu Sans Mono` / `15` | Editor font for better readability |
+| `JavaBin` | `C:\Java\jdk-19.0.2\bin` | Path to JDK compiler |
+| `logs_FontName2` / `logs_FontSize2` | `Ubuntu Sans` / `15` | Log panel font settings |
+| `NewProjectDefaultFolder` | `Z:\home\USER\B4A_Projects` | Default project save location (Linux-native) |
+| `PlatformFolder` | `C:\Program Files\...\android-36` | Android SDK platform reference |
+
+### Manual Override
+To edit settings after installation:
+```bash
+# Open the INI file in your preferred editor
+nano ~/.wine_b4a/drive_c/users/\$(whoami)/AppData/Roaming/Anywhere\ Software/Basic4android/b4xV5.ini
+```
+
 ### Desktop Launcher
 - Location: `~/.local/share/applications/b4a-wine.desktop`
 - Also copied to: `~/Desktop/b4a-wine.desktop`
