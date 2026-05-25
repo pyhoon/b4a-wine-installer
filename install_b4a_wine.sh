@@ -4,7 +4,7 @@
 # Installs: Wine, Winetricks, B4A, JDK19, .NET Framework, VC++ Runtime and configures everything for a smooth B4A experience on Linux Mint.
 # Author: pyhoon (Aeric)
 # AI Assistant: Qwen3.6 Plus
-# Date: 25 May 2026
+# Date: 26 May 2026
 # License: MIT
 #===============================================================================
 
@@ -82,28 +82,6 @@ download_file() {
 }
 
 #-------------------------------------------------------------------------------
-# INI FILE HELPER: Set or update a key=value pair in an INI file
-#-------------------------------------------------------------------------------
-ini_set() {
-    local file="$1" key="$2" value="$3"
-    
-    # Create file if it doesn't exist
-    if [[ ! -f "$file" ]]; then
-        mkdir -p "$(dirname "$file")"
-        touch "$file"
-    fi
-    
-    # If key exists, update it; otherwise append it
-    if grep -q "^${key}=" "$file" 2>/dev/null; then
-        # Update existing key (using sed with proper escaping)
-        sed -i "s|^${key}=.*|${key}=${value}|" "$file"
-    else
-        # Append new key-value pair
-        echo "${key}=${value}" >> "$file"
-    fi
-}
-
-#-------------------------------------------------------------------------------
 # MAIN INSTALLATION STEPS
 #-------------------------------------------------------------------------------
 
@@ -117,12 +95,12 @@ check_mint
 #-------------------------------------------------------------------------------
 # 1. Update system & install prerequisites
 #-------------------------------------------------------------------------------
-#log_info "Updating system packages..." aeric: skipped, users should do this manually first
-#sudo apt update -qq
-#sudo apt upgrade -y -qq
+log_info "Updating system packages..."
+sudo apt update -qq
+sudo apt upgrade -y -qq
 
-#log_info "Installing prerequisites for WineHQ repository..."
-#sudo apt install -y ca-certificates curl gnupg software-properties-common apt-transport-https
+log_info "Installing prerequisites for WineHQ repository..."
+sudo apt install -y ca-certificates curl gnupg software-properties-common apt-transport-https
 
 #-------------------------------------------------------------------------------
 # 2. Enable 32-bit architecture (required for many Windows apps)
@@ -374,40 +352,7 @@ fi
 rm -f "$RESOURCES_ZIP"
 
 #-------------------------------------------------------------------------------
-# 15. Configure B4A settings in b4xV5.ini
-#-------------------------------------------------------------------------------
-log_info "Configuring B4A settings in b4xV5.ini..."
-
-# Define paths for the INI file
-B4A_CONFIG_DIR="${WINE_PREFIX}/drive_c/users/$(whoami)/AppData/Roaming/Anywhere Software/Basic4android"
-B4A_INI_FILE="${B4A_CONFIG_DIR}/b4xV5.ini"
-
-# Ensure directory exists
-mkdir -p "$B4A_CONFIG_DIR"
-
-# Configure each setting using our helper function
-# Note: Use forward slashes in paths for Wine compatibility, or escape backslashes
-ini_set "$B4A_INI_FILE" "AdditionalLibrariesFolder" "C:\\Additional Libraries"
-ini_set "$B4A_INI_FILE" "FontName2" "Ubuntu Sans Mono"
-ini_set "$B4A_INI_FILE" "FontSize2" "15"
-ini_set "$B4A_INI_FILE" "JavaBin" "C:\\Java\\jdk-19.0.2\\bin"
-ini_set "$B4A_INI_FILE" "logs_FontName2" "Ubuntu Sans"
-ini_set "$B4A_INI_FILE" "logs_FontSize2" "15"
-ini_set "$B4A_INI_FILE" "NewProjectDefaultFolder" "Z:\\home\\$(whoami)\\B4A_Projects"
-ini_set "$B4A_INI_FILE" "PlatformFolder" "C:\\Program Files\\Anywhere Software\\B4A\\platforms\\android-36"
-
-log_success "B4A configuration saved to ${B4A_INI_FILE}"
-
-# Optional: Display the configured settings for verification
-if [[ -f "$B4A_INI_FILE" ]]; then
-    log_info "Applied settings:"
-    grep -E "^(AdditionalLibrariesFolder|FontName2|FontSize2|JavaBin|logs_FontName2|logs_FontSize2|NewProjectDefaultFolder|PlatformFolder)=" "$B4A_INI_FILE" 2>/dev/null | while read -r line; do
-        echo -e "  ${CYAN}•${NC} $line"
-    done
-fi
-
-#-------------------------------------------------------------------------------
-# 16. Create desktop shortcut/launcher for B4A
+# 15. Create desktop shortcut/launcher for B4A
 #-------------------------------------------------------------------------------
 log_info "Creating desktop launcher for B4A..."
 
@@ -460,7 +405,7 @@ else
 fi
 
 #-------------------------------------------------------------------------------
-# 17. Create optional folders: Additional Libraries & Projects
+# 16. Create optional folders: Additional Libraries & Projects
 #-------------------------------------------------------------------------------
 log_info "Creating optional folder structure..."
 
@@ -475,14 +420,14 @@ mkdir -p "$PROJECTS_DIR"
 log_success "Created Projects folder: ${PROJECTS_DIR}"
 
 #-------------------------------------------------------------------------------
-# 18. Set permissions on Wine prefix and folders
+# 17. Set permissions on Wine prefix and folders
 #-------------------------------------------------------------------------------
 log_info "Setting appropriate permissions..."
 chmod -R u+rwX "${WINE_PREFIX}" 2>/dev/null || true
 chmod 755 "$PROJECTS_DIR" 2>/dev/null || true
 
 #-------------------------------------------------------------------------------
-# 19. Final configuration tips & messages
+# 18. Final configuration tips & messages
 #-------------------------------------------------------------------------------
 echo -e "\n${GREEN}════════════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}  ✓ B4A Installation Complete!${NC}"
