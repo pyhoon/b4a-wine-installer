@@ -49,7 +49,7 @@ This script automatically:
 - **Linux Mint 21.x** (Vanessa/Vera/Victoria/Virginia) or **22.x** (Wilma/Xia/Zara/Zena)
 - **64-bit architecture** (with 32-bit support enabled)
 - **Internet connection** for downloads
-- **~4 GB free disk space** (Wine prefix + JDK + B4A + Android SDK + B4A Resources)
+- **~4.5 GB free disk space** (Wine prefix + JDK + B4A + Android SDK + B4A Resources)
 - **sudo privileges** for system package installation
 
 ## 🚀 Quick Start
@@ -118,10 +118,11 @@ To edit settings after installation:
 nano ~/.wine_b4a/drive_c/users/\$(whoami)/AppData/Roaming/Anywhere\ Software/Basic4android/b4xV5.ini
 ```
 
+You can also change the settings in B4A IDE menu `Tools` -> `Configure Paths`.
+
 ### Desktop Launcher
 - Location: `~/.local/share/applications/b4a-wine.desktop`
 - Also copied to: `~/Desktop/b4a-wine.desktop`
-- Icon: Downloaded from B4X website (fallback to generic if unavailable)
 
 ## 🔧 Troubleshooting
 
