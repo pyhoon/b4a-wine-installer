@@ -109,7 +109,7 @@ The script automatically configures `b4xV5.ini` with optimized settings:
 | `JavaBin` | `C:\Java\jdk-19.0.2\bin` | Path to JDK compiler |
 | `logs_FontName2` / `logs_FontSize2` | `Ubuntu Sans` / `15` | Log panel font settings |
 | `NewProjectDefaultFolder` | `Z:\home\USER\B4A_Projects` | Default project save location (Linux-native) |
-| `PlatformFolder` | `C:\Program Files\...\android-36` | Android SDK platform reference |
+| `PlatformFolder` | `C:\Android\platforms\android-36` | Android SDK platform reference |
 
 ### Manual Override
 To edit settings after installation:
