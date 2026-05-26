@@ -36,12 +36,13 @@ This script automatically:
    - `DirectX 11/12 (DXVK)`
 5. ✅ Downloads & installs **B4A** from https://www.b4x.com/android/files/B4A.exe
 6. ✅ Downloads & extracts **JDK 19** to `C:\Java` in Wine prefix
-7. ✅ Creates **desktop launcher** with icon (menu + desktop)
-8. ✅ Creates optional folders:
+7. ✅ Downloads & extracts **Android SDK** to `C:\Android` in Wine prefix
+8. ✅ Creates **desktop launcher** with icon (menu + desktop)
+9. ✅ Creates optional folders:
    - `C:\Additional Libraries\{B4A,B4X}`
    - `~/B4A_Projects` in your home directory
-9. ✅ Sets appropriate permissions
-10. ✅ Provides helpful terminal messages throughout
+10. ✅ Sets appropriate permissions
+11. ✅ Provides helpful terminal messages throughout
 
 ## 🖥️ System Requirements
 
