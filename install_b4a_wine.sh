@@ -338,7 +338,7 @@ RESOURCES_ZIP="${WINE_PREFIX}/drive_c/temp/resources_7_25.zip"
 download_file "${SDK_RESOURCES_URL}" "$RESOURCES_ZIP"
 
 log_info "Extracting B4A Resources to Android SDK folder..."
-# Extract directly to Android SDK directory (where Additional Libraries, etc. are expected)
+# Extract directly to Android SDK directory
 if [[ -d "$SDK_LINUX_PATH" ]]; then
     unzip -q -o "$RESOURCES_ZIP" -d "$SDK_LINUX_PATH" 2>/dev/null && \
         log_success "B4A Resources extracted to ${SDK_LINUX_PATH}" || \
@@ -455,7 +455,7 @@ echo "    - Editor fonts (Ubuntu Sans Mono, size 15)"
 echo "    - Default project folder (Linux-native via Z: drive)"
 echo "    - Additional Libraries path"
 echo ""
-echo -e "${YELLOW}📁 Files Created:${NC}"
+echo -e "${YELLOW}📁 Available Scripts:${NC}"
 echo "  • Installer: ./install_b4a_wine.sh"
 echo "  • Uninstaller: ./uninstall_b4a_wine.sh"
 echo "  • Configurator: ./configure_b4a_settings.sh ← Run after first B4A launch"
@@ -467,9 +467,9 @@ echo "  • Font issues? Install fonts: sudo apt install fonts-ubuntu-font-famil
 echo "  • Reset everything? ./uninstall_b4a_wine.sh --force && ./install_b4a_wine.sh"
 echo ""
 echo -e "${YELLOW}📚 Resources:${NC}"
-echo "  • B4A Docs: https://www.b4x.com/android/documentation.html"
+echo "  • B4A Documentation: https://www.b4x.com/android/documentation.html"
 echo "  • Android SDK: https://developer.android.com/studio#command-tools"
-echo "  • B4X Forum: https://www.b4x.com/android/forum/"
+echo "  • B4X Forum: https://www.b4x.com/android/forum/pages/results/?query=wine"
 echo ""
 echo -e "${GREEN}Happy Android development on Linux Mint! 🤖🐧☕${NC}\n"
 
