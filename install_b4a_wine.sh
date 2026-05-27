@@ -283,15 +283,15 @@ SDK_TEMP="${WINE_PREFIX}/drive_c/temp/sdk_extract"
 mkdir -p "$SDK_TEMP"
 unzip -q "$SDK_ZIP" -d "$SDK_TEMP"
 
-# Android SDK expects: cmdline-tools/latest/
-# The zip extracts to cmdline-tools/ with bin/, lib/, etc.
+# Android SDK expects: C:\Android\cmdline-tools\
+# The zip extracts to /home/USER/.wine_b4a/drive_c/Android/cmdline-tools/ with bin/, lib/, etc.
 if [[ -d "${SDK_TEMP}/cmdline-tools" ]]; then
-    mv "${SDK_TEMP}/cmdline-tools" "${SDK_LINUX_PATH}/cmdline-tools/latest"
+    mv "${SDK_TEMP}/cmdline-tools" "${SDK_LINUX_PATH}/cmdline-tools"
     log_success "Android SDK Command Line Tools extracted to ${SDK_WINE_PATH}"
 else
     log_warn "Unexpected SDK archive structure. Attempting fallback extraction..."
     # Fallback: move whatever was extracted
-    find "${SDK_TEMP}" -mindepth 1 -maxdepth 1 -exec mv -t "${SDK_LINUX_PATH}/cmdline-tools/latest/" {} + 2>/dev/null || true
+    find "${SDK_TEMP}" -mindepth 1 -maxdepth 1 -exec mv -t "${SDK_LINUX_PATH}/cmdline-tools/" {} + 2>/dev/null || true
 fi
 
 # Cleanup temp files
@@ -325,7 +325,7 @@ log_success "Android SDK licenses pre-accepted"
 
 # Optional: Verify sdkmanager works (non-blocking)
 if command -v wine &>/dev/null; then
-    wine "${SDK_LINUX_PATH}/cmdline-tools/latest/bin/sdkmanager.bat" --list 2>/dev/null | head -5 >/dev/null && \
+    wine "${SDK_LINUX_PATH}/cmdline-tools/bin/sdkmanager.bat" --list 2>/dev/null | head -5 >/dev/null && \
         log_success "sdkmanager is functional" || \
         log_warn "sdkmanager verification skipped (may need first-run initialization)"
 fi
