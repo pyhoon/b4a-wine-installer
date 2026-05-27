@@ -13,6 +13,7 @@ set -euo pipefail
 # CONFIGURATION
 #-------------------------------------------------------------------------------
 readonly WINE_PREFIX="${HOME}/.wine_b4a"
+readonly B4A_PROJECTS_FOLDER="${HOME}/B4A_Projects"
 readonly B4A_INI_FILE="${WINE_PREFIX}/drive_c/users/$(whoami)/AppData/Roaming/Anywhere Software/Basic4android/b4xV5.ini"
 
 # Colors
@@ -71,7 +72,7 @@ ini_set "$B4A_INI_FILE" "FontSize2" "15"
 ini_set "$B4A_INI_FILE" "logs_FontName2" "Ubuntu Sans"
 ini_set "$B4A_INI_FILE" "logs_FontSize2" "15"
 ini_set "$B4A_INI_FILE" "JavaBin" "C:\\\\Java\\\\jdk-19.0.2\\\\bin\\\\"
-ini_set "$B4A_INI_FILE" "NewProjectDefaultFolder" "${HOME}/B4A_Projects"
+ini_set "$B4A_INI_FILE" "NewProjectDefaultFolder" "${B4A_PROJECTS_FOLDER}"
 ini_set "$B4A_INI_FILE" "AdditionalLibrariesFolder" "C:\Additional Libraries"
 ini_set "$B4A_INI_FILE" "PlatformFolder" "C:\\\\Android\\\\platforms\\\\android-36\\\\"
 
