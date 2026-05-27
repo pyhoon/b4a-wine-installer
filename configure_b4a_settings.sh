@@ -3,7 +3,7 @@
 # B4A Post-Install Configuration Script
 # Configures b4xV5.ini with optimized settings after B4A first run
 # Author: pyhoon (Aeric)
-# Date: 26 May 2026
+# Date: 28 May 2026
 # License: MIT
 #===============================================================================
 
@@ -13,7 +13,7 @@ set -euo pipefail
 # CONFIGURATION
 #-------------------------------------------------------------------------------
 readonly WINE_PREFIX="${HOME}/.wine_b4a"
-readonly B4A_PROJECTS_FOLDER="${HOME}/B4A_Projects"
+readonly B4A_PROJECTS_FOLDER="Z:\\\\home\\\\$(whoami)\\\\B4A_Projects"
 readonly B4A_INI_FILE="${WINE_PREFIX}/drive_c/users/$(whoami)/AppData/Roaming/Anywhere Software/Basic4android/b4xV5.ini"
 
 # Colors
